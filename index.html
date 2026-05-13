@@ -17,15 +17,21 @@
   --fs:'Barlow Condensed',sans-serif;
   --fb:'Barlow',sans-serif;
 }
-html{height:100%;}
+html{height:100%;overflow-x:hidden;width:100%;max-width:100%;}
 body{
   font-family:var(--fb);
   background:var(--navy);
   color:var(--white);
   min-height:100vh;
   overflow-x:hidden;
+  width:100%;
+  max-width:100%;
   display:flex;
   flex-direction:column;
+}
+/* Prevent iOS zoom-on-focus by ensuring inputs are ≥16px */
+input, button, textarea{
+  font-size:16px;
 }
 
 /* ── BACKGROUND ── */
@@ -229,7 +235,7 @@ main{
   flex:1;padding:16px 18px;
   background:rgba(255,255,255,0.06);
   border:none;outline:none;
-  font-family:var(--fb);font-size:15px;
+  font-family:var(--fb);font-size:16px;
   color:var(--white);
   min-width:0;
 }
@@ -467,7 +473,7 @@ main{
 
   /* FORM — horizontal one-row */
   .form-row{flex-direction:row;border-radius:3px;}
-  .form-input{border-bottom:none;border-radius:0;padding:14px 16px;font-size:15px;}
+  .form-input{border-bottom:none;border-radius:0;padding:14px 16px;font-size:16px;}
   .form-btn{border-radius:0;padding:14px 18px;font-size:12px;letter-spacing:1.8px;}
 
   /* GIVEAWAY ribbon — keep readable on narrow screens */
@@ -569,12 +575,12 @@ main{
     margin-right:auto;
   }
 
-  /* RIGHT COLUMN — Matt hero card, vertically centred */
+  /* RIGHT COLUMN — Matt hero card, top aligned with headline */
   .matt-hero{
     grid-column:2;
     grid-row:1 / span 20;
-    align-self:center;
-    margin:0;
+    align-self:start;
+    margin:132px 0 0;
     max-width:none;
     width:100%;
     justify-self:center;
