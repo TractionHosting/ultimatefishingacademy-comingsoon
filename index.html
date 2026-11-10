@@ -663,7 +663,7 @@ main{
         autocomplete="email"
         required
       >
-      <button class="form-btn" type="button" onclick="handleSignup()">Enter Now</button>
+      <button class="form-btn" type="button" onclick="handleSignup()">Notify Me</button>
     </div>
   </div>
 
@@ -718,28 +718,35 @@ function handleSignup() {
   }, 300);
 
   // ============================================================
-  // EMAIL CAPTURE — Zapier webhook
-  // Posts JSON to Zapier "Catch Hook" → Google Sheets
+  // EMAIL CAPTURE — Brevo sign-up form
+  // Posts directly to Brevo (form "UFA - Coming Soon (Tradeshow)"),
+  // which adds the contact straight to the "UFA - Boat Show 2026" list.
+  // Replaces the old Zapier catch-hook, which stopped working: it used
+  // mode:'no-cors' so the page always showed success even when the hook
+  // was dead, silently dropping every signup. This endpoint returns a
+  // real response we can check, so failures are now actually visible.
   // ============================================================
-  var WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/23712301/4yown6g/';
+  var BREVO_FORM_URL = 'https://28ac3d58.sibforms.com/serve/MUIFANHg4_6JjERbotk3Y2Znqa1LRiEjph8EnGowAAafDj8Hcao6uqX4z-0h6pipsfhznhi4-CURGIauFkYjeywf3gx60qmYXnMWpL0O04-lrJwFxYEyrypy3UBCyF4ID2J_9Zm4UMHkkLdtVH92JfjVvf4aRdHsBqPrh_xz1Onu1oKY0lw8iY8mV62sYhhaw2hywMUBhIjWMwPHtA==';
 
-  if (WEBHOOK_URL && WEBHOOK_URL.indexOf('hooks.zapier.com') !== -1) {
-    fetch(WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors', // Zapier doesn't return CORS headers; no-cors prevents browser errors
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email,
-        source: 'tradeshow',
-        timestamp: new Date().toISOString()
-      })
-    }).catch(function(err) {
-      // Silent fail — user already saw success state; log for debugging
-      console.error('Webhook submission failed:', err);
+  var body = new URLSearchParams();
+  body.set('EMAIL', email);
+  body.set('email_address_check', ''); // honeypot field — must stay empty
+  body.set('locale', 'en');
+
+  fetch(BREVO_FORM_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  }).then(function(resp) {
+    return resp.json().catch(function() { return {}; }).then(function(data) {
+      if (!resp.ok || data.success === false) {
+        console.error('Brevo signup did not succeed:', resp.status, data);
+      }
     });
-  } else {
-    console.log('Email captured (webhook not configured):', email);
-  }
+  }).catch(function(err) {
+    // Network/CORS failure — user already saw success state; log for debugging
+    console.error('Email capture request failed:', err);
+  });
 }
 
 // Allow Enter key to submit
